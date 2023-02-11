@@ -1,0 +1,301 @@
+{
+	"info": {
+		"_postman_id": "90dfda24-4fe3-4122-bb9c-3d797ee20d12",
+		"name": "YouTrack_collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25800436"
+	},
+	"item": [
+		{
+			"name": "New Request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}",
+					"host": [
+						"{{URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Projects",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Set new variable\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"projectId\", jsonData[1].id);\r",
+							"    pm.expect(jsonData[1].id).to.eql(pm.environment.get(\"projectId\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer perm:amFuZS5kb2U=.UkVTVCBBUEk=.wcKuAok8cHmAtzjA6xlc4BrB4hleaX"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}api/admin/projects?fields=id,name,shortName",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"admin",
+						"projects"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "id,name,shortName"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New issue",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var rnd = Math.random();\r",
+							"pm.environment.set(\"summary\", \"Beautiful summary \" + rnd);\r",
+							"pm.environment.set(\"description\", \"Beautiful description \" + rnd);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Set new variable\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.environment.set(\"issueId\", jsonData.id);\r",
+							"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"issueId\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"project\": {\n        \"id\": \"{{projectId}}\"\n    },\n    \"summary\": \"{{summary}}\",\n    \"description\": \"{{description}}\"\n}"
+				},
+				"url": {
+					"raw": "{{URL}}api/issues",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"issues"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_issue",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Testing summury and description content\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.summary).to.eql(pm.environment.get(\"summary\"));\r",
+							"    pm.expect(jsonData.description).to.eql(pm.environment.get(\"description\"));\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Cache-Control",
+						"value": "no-cache"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}api/issues/{{issueId}}?fields=$type,id,summary,description",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"issues",
+						"{{issueId}}"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "$type,id,summary,description"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_issue_custom_field",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Testing assignee and priority content\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.customFields[3].value.login).to.eql(pm.environment.get(\"Login\"));\r",
+							"    pm.expect(jsonData.customFields[0].value.name).to.eql(\"Major\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\"customFields\": [\n{\"name\":\"Assignee\",\"$type\":\"SingleUserIssueCustomField\",\"value\":{\"login\":\"{{Login}}\"}},\n{\"name\":\"Priority\",\"$type\":\"SingleEnumIssueCustomField\",\"value\":{\"name\":\"Major\"}}\n] }"
+				},
+				"url": {
+					"raw": "{{URL}}api/issues/{{issueId}}?fields=customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"issues",
+						"{{issueId}}"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "{{PassWord}}",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "{{Login}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
