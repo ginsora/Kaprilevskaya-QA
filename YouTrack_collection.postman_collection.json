@@ -7,33 +7,6 @@
 	},
 	"item": [
 		{
-			"name": "New Request",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{URL}}",
-					"host": [
-						"{{URL}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Projects",
 			"event": [
 				{
@@ -93,18 +66,6 @@
 			"name": "New issue",
 			"event": [
 				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"var rnd = Math.random();\r",
-							"pm.environment.set(\"summary\", \"Beautiful summary \" + rnd);\r",
-							"pm.environment.set(\"description\", \"Beautiful description \" + rnd);\r",
-							""
-						],
-						"type": "text/javascript"
-					}
-				},
-				{
 					"listen": "test",
 					"script": {
 						"exec": [
@@ -117,6 +78,18 @@
 							"    pm.environment.set(\"issueId\", jsonData.id);\r",
 							"    pm.expect(jsonData.id).to.eql(pm.environment.get(\"issueId\"));\r",
 							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var rnd = Math.random();\r",
+							"pm.environment.set(\"summary\", \"Beautiful summary \" + rnd);\r",
+							"pm.environment.set(\"description\", \"Beautiful description \" + rnd);\r",
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -188,7 +161,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{URL}}api/issues/{{issueId}}?fields=$type,id,summary,description",
+					"raw": "{{URL}}api/issues/{{issueId}}?fields=$type,id,summary,description,customFields(id,projectCustomField(field(name)))",
 					"host": [
 						"{{URL}}api"
 					],
@@ -199,7 +172,7 @@
 					"query": [
 						{
 							"key": "fields",
-							"value": "$type,id,summary,description"
+							"value": "$type,id,summary,description,customFields(id,projectCustomField(field(name)))"
 						}
 					]
 				}
@@ -242,6 +215,143 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\"customFields\": [\n{\"name\":\"Assignee\",\"$type\":\"SingleUserIssueCustomField\",\"value\":{\"login\":\"{{Login}}\"}},\n{\"name\":\"Priority\",\"$type\":\"SingleEnumIssueCustomField\",\"value\":{\"name\":\"Major\"}}\n] }"
+				},
+				"url": {
+					"raw": "{{URL}}api/issues/{{issueId}}?fields=customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"issues",
+						"{{issueId}}"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_value_issue_custom_field",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}api/issues/{{issueId}}?query=in:postman&fields=id,idReadable,summary,customFields(id,projectCustomField(field(name)))",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"issues",
+						"{{issueId}}"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "in:postman"
+						},
+						{
+							"key": "fields",
+							"value": "id,idReadable,summary,customFields(id,projectCustomField(field(name)))"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get_real_value_for_state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Testing state - Submitted\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.value.name).to.eql(\"Submitted\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}api/issues/{{issueId}}/customFields/107-56?fields=id,projectCustomField%28id,field%28id,name%29%29,value%28id,isResolved,localizedName,name%29",
+					"host": [
+						"{{URL}}api"
+					],
+					"path": [
+						"issues",
+						"{{issueId}}",
+						"customFields",
+						"107-56"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "id,projectCustomField%28id,field%28id,name%29%29,value%28id,isResolved,localizedName,name%29"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update_state",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Testing state - In Progress\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.customFields[2].value.name).to.eql(\"In Progress\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"customFields\": [\n        {\n            \"name\": \"State\",\n            \"$type\": \"StateIssueCustomField\",\n            \"value\": {\n                \"name\": \"In Progress\"\n            }\n        }\n    ]\n}"
 				},
 				"url": {
 					"raw": "{{URL}}api/issues/{{issueId}}?fields=customFields(id,name,value(avatarUrl,buildLink,color(id),fullName,id,isResolved,localizedName,login,minutes,name,presentation,text))",
