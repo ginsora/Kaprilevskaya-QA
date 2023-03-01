@@ -31,15 +31,18 @@ public class SecondTest {
     @DataProvider   // Ввод кучи данных
     public static Object[][] data() {
         return new Object[][] {
-                {"4000000000000002", "JOHN DOE", "02", "2030", "123", "Success", "Confirmed", "VISA"},
-                //{"5555555555554444", "DECLINED BY ISSUING BANK"}
+                {"4000000000000002", "John Doe", "02", "2030", "123", "Success", "Confirmed", "VISA", "...0002"},
+                {"5555555555554444", "James Smith", "10", "2025", "323", "Decline", "Declined by issuing bank", "MASTERCARD", "...4444"},
+                {"4000000000000044", "Emma Watson", "12", "2038", "888", "Info", "Confirmed", "VISA", "...0044"},
+               // Второй вариант аутентификации. Нужен другой тест
+                // {"4000000000000093", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"}
         };
     }
 
 
     @Test
     @UseDataProvider("data")
-    public void finalPageTesting(String cardNum, String cardHolder, String cardMonth, String cardYear, String cardCvc, String operationStatus, String paymentStatus, String cardType) {
+    public void finalPageTesting(String cardNum, String cardHolder, String cardMonth, String cardYear, String cardCvc, String operationStatus, String paymentStatus, String cardType, String cardShortNum) {
         driver.get(baseUrl);
         String Order_number = (String) driver.findElement(By.id("order-number")).getText();
         String Total = (String) driver.findElement(By.id("total-amount")).getText();
@@ -49,7 +52,7 @@ public class SecondTest {
         driver.findElement(By.id("input-card-number")).sendKeys(cardNum);
         driver.findElement(By.id("input-card-holder")).click();
         driver.findElement(By.id("input-card-holder")).clear();
-        driver.findElement(By.id("input-card-holder")).sendKeys(cardHolder);
+        driver.findElement(By.id("input-card-holder")).sendKeys(cardHolder.toUpperCase());
         driver.findElement(By.id("card-expires-month")).click();
         new Select(driver.findElement(By.id("card-expires-month"))).selectByVisibleText(cardMonth);
         driver.findElement(By.id("card-expires-year")).click();
@@ -68,13 +71,16 @@ public class SecondTest {
         assertEquals(Order_number, driver.findElement(By.xpath("//*[@id=\"payment-item-ordernumber\"]/div[2]")).getText());
 
         // Сравнение статуса платежа
-        assertEquals(paymentStatus, driver.findElement(By.xpath("//*[@id=\"payment-item-status\"]/div[2]")).getText());
+        assertEquals(paymentStatus.toUpperCase(), driver.findElement(By.xpath("//*[@id=\"payment-item-status\"]/div[2]")).getText().toUpperCase());
+
+        // Сравнение короткого номера карты
+        assertEquals(cardShortNum, driver.findElement(By.xpath("//*[@id=\"payment-item-cardnumber\"]/div[2]")).getText());
 
         // Сравнение типа карты
         assertEquals(cardType, driver.findElement(By.xpath("//*[@id=\"payment-item-cardtype\"]/div[2]")).getText());
 
         // Сравнение держателя карты
-        assertEquals(cardHolder, driver.findElement(By.xpath("//*[@id=\"payment-item-cardholder\"]/div[2]")).getText());
+        assertEquals(cardHolder.toUpperCase(), driver.findElement(By.xpath("//*[@id=\"payment-item-cardholder\"]/div[2]")).getText());
 
         // Сравнение валюты
         assertEquals(Currency + "   " + Total, driver.findElement(By.xpath("//*[@id=\"payment-item-total\"]/div[2]")).getText());
