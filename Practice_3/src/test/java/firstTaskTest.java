@@ -64,8 +64,12 @@ public class firstTaskTest {
     @DataProvider // Month and year check. Invalid data.
     public static Object[][] data3() {
         return new Object[][] {
+                {"4000000000000002",  "John Doe", "02", "2022", "123"},
                 {"4000000000000002",  "John Doe", "month", "year", "123"},
-                {"4000000000000002",  "John Doe", "@@", "!@#$", "123"}
+                {"4000000000000002",  "John Doe", "@@", "!@#$", "123"},
+                {"4000000000000002",  "John Doe", "05", "2044", "123"},
+                {"4000000000000002",  "John Doe", "7", "2044", "123"},
+                {"4000000000000002",  "John Doe", "13", "2030", "123"}
         };
     }
 

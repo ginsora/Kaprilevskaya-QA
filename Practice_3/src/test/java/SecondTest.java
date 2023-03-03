@@ -28,20 +28,29 @@ public class SecondTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
     }
 
-    @DataProvider   // Ввод кучи данных
+    @DataProvider   // 3-D secure version 1
     public static Object[][] data() {
         return new Object[][] {
                 {"4000000000000002", "John Doe", "02", "2030", "123", "Success", "Confirmed", "VISA", "...0002"},
                 {"5555555555554444", "James Smith", "10", "2025", "323", "Decline", "Declined by issuing bank", "MASTERCARD", "...4444"},
                 {"4000000000000044", "Emma Watson", "12", "2038", "888", "Info", "Confirmed", "VISA", "...0044"},
-               // Второй вариант аутентификации. Нужен другой тест
-                // {"4000000000000093", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"}
+                {"4000000000000085", "Victoria Cruse", "01", "2038", "756", "Info", "Confirmed", "VISA", "...0085"}
+        };
+    }
+
+    @DataProvider   // 3-D secure version 2
+    public static Object[][] data1() {
+        return new Object[][] {
+                {"4000000000000093", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"},
+                {"4000000000000077", "Tom Hardy", "07", "2023", "492", "Success", "Confirmed", "VISA", "...0093"},
+                {"5555555555554477", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"},
+                {"4000000000000051", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"}
         };
     }
 
 
     @Test
-    @UseDataProvider("data")
+    @UseDataProvider("data") // 3-D secure version 1, full authentication
     public void finalPageTesting(String cardNum, String cardHolder, String cardMonth, String cardYear, String cardCvc, String operationStatus, String paymentStatus, String cardType, String cardShortNum) {
         driver.get(baseUrl);
         String Order_number = (String) driver.findElement(By.id("order-number")).getText();
