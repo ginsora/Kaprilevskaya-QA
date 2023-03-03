@@ -42,15 +42,15 @@ public class SecondTest {
     public static Object[][] data1() {
         return new Object[][] {
                 {"4000000000000093", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"},
-                {"4000000000000077", "Tom Hardy", "07", "2023", "492", "Success", "Confirmed", "VISA", "...0093"},
-                {"5555555555554477", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"},
-                {"4000000000000051", "Tom Hardy", "05", "2026", "492", "Success", "Confirmed", "VISA", "...0093"}
+                {"4000000000000077", "Brad Pitt", "11", "2031", "574", "Success", "Confirmed", "VISA", "...0077"},
+                {"5555555555554477", "Leo DiCaprio", "06", "2037", "025", "Decline", "Declined by issuing bank", "MASTERCARD", "...4477"},
+                {"4000000000000051", "Quentin Tarantino", "08", "2029", "999", "Info", "Confirmed", "VISA", "...0051"}
         };
     }
 
 
     @Test
-    @UseDataProvider("data") // 3-D secure version 1, full authentication
+    @UseDataProvider("data") // 3-D secure version 1
     public void finalPageTesting(String cardNum, String cardHolder, String cardMonth, String cardYear, String cardCvc, String operationStatus, String paymentStatus, String cardType, String cardShortNum) {
         driver.get(baseUrl);
         String Order_number = (String) driver.findElement(By.id("order-number")).getText();
@@ -71,6 +71,55 @@ public class SecondTest {
         driver.findElement(By.id("input-card-cvc")).sendKeys(cardCvc);
         driver.findElement(By.id("action-submit")).click();
         driver.findElement(By.id("success")).click();
+
+
+        // Сравнение статуса операции
+        assertEquals(operationStatus, driver.findElement(By.xpath("//*[@id=\"payment-status-title\"]/span")).getText());
+
+        // Сравнение номера заказа
+        assertEquals(Order_number, driver.findElement(By.xpath("//*[@id=\"payment-item-ordernumber\"]/div[2]")).getText());
+
+        // Сравнение статуса платежа
+        assertEquals(paymentStatus.toUpperCase(), driver.findElement(By.xpath("//*[@id=\"payment-item-status\"]/div[2]")).getText().toUpperCase());
+
+        // Сравнение короткого номера карты
+        assertEquals(cardShortNum, driver.findElement(By.xpath("//*[@id=\"payment-item-cardnumber\"]/div[2]")).getText());
+
+        // Сравнение типа карты
+        assertEquals(cardType, driver.findElement(By.xpath("//*[@id=\"payment-item-cardtype\"]/div[2]")).getText());
+
+        // Сравнение держателя карты
+        assertEquals(cardHolder.toUpperCase(), driver.findElement(By.xpath("//*[@id=\"payment-item-cardholder\"]/div[2]")).getText());
+
+        // Сравнение валюты
+        assertEquals(Currency + "   " + Total, driver.findElement(By.xpath("//*[@id=\"payment-item-total\"]/div[2]")).getText());
+
+        // Сравнение суммы
+        assertEquals(Total, driver.findElement(By.xpath("//*[@id=\"payment-item-total-amount\"]")).getText());
+    }
+
+    @Test
+    @UseDataProvider("data1") // 3-D secure version 2
+    public void finalPageTesting1(String cardNum, String cardHolder, String cardMonth, String cardYear, String cardCvc, String operationStatus, String paymentStatus, String cardType, String cardShortNum) {
+        driver.get(baseUrl);
+        String Order_number = (String) driver.findElement(By.id("order-number")).getText();
+        String Total = (String) driver.findElement(By.id("total-amount")).getText();
+        String Currency = (String) driver.findElement(By.id("currency")).getText();
+        driver.findElement(By.id("input-card-number")).click();
+        driver.findElement(By.id("input-card-number")).clear();
+        driver.findElement(By.id("input-card-number")).sendKeys(cardNum);
+        driver.findElement(By.id("input-card-holder")).click();
+        driver.findElement(By.id("input-card-holder")).clear();
+        driver.findElement(By.id("input-card-holder")).sendKeys(cardHolder.toUpperCase());
+        driver.findElement(By.id("card-expires-month")).click();
+        new Select(driver.findElement(By.id("card-expires-month"))).selectByVisibleText(cardMonth);
+        driver.findElement(By.id("card-expires-year")).click();
+        new Select(driver.findElement(By.id("card-expires-year"))).selectByVisibleText(cardYear);
+        driver.findElement(By.id("input-card-cvc")).click();
+        driver.findElement(By.id("input-card-cvc")).clear();
+        driver.findElement(By.id("input-card-cvc")).sendKeys(cardCvc);
+        driver.findElement(By.id("action-submit")).click();
+        //driver.findElement(By.id("success")).click();
 
 
         // Сравнение статуса операции
